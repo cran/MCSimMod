@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Dustin Kapraun" />
+
+<meta name="date" content="2025-04-09" />
+
+<title>(2) Using Model Specification Files</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">(2) Using Model Specification Files</h1>
+<h4 class="author">Dustin Kapraun</h4>
+<h4 class="date">2025-04-09</h4>
+
+
+
+<div id="a-mathematical-model-for-exponential-growth-or-decay" class="section level2">
+<h2>A Mathematical Model for Exponential Growth or Decay</h2>
+<p>A quantity undergoes exponential growth or decay when the rate of
+change of the quantity is proportional to the amount currently present.
+So, if <span class="math inline">\(A(t)\)</span> is the amount at time
+<span class="math inline">\(t\)</span> and <span class="math inline">\(r\)</span> is the exponential rate of change (with
+units of one over time), then <span class="math display">\[\begin{equation}
+  \frac{\textrm{d}}{\textrm{d}t}A(t) = r \cdot A(t).
+\end{equation}\]</span> When <span class="math inline">\(r\)</span> is
+positive, the process is known as exponential growth, and when <span class="math inline">\(r\)</span> is negative, the process is known as
+exponential decay.</p>
+<p>In order to solve an initial value problem involving an exponential
+growth or decay differential equation, one needs to specify the
+exponential rate <span class="math inline">\(r\)</span> and an initial
+amount <span class="math inline">\(A_0\)</span> such that <span class="math inline">\(A(0) = A_0\)</span>.</p>
+</div>
+<div id="mcsim-model-specification" class="section level2">
+<h2>MCSim Model Specification</h2>
+<p>We will use the <a href="https://www.gnu.org/software/mcsim/">GNU
+MCSim</a> model specification language to implement the exponential
+model. Recall that this model has a single state variable, <span class="math inline">\(A\)</span>, and two parameters, <span class="math inline">\(r\)</span> and <span class="math inline">\(A_0\)</span>, the latter of which is an initial
+condition for the state variable. All of these components of the
+exponential model can be included in a text file that we refer to as an
+“MCSim model specification file.” The complete MCSim model specification
+file for the exponential model, <code>exponential.model</code>, can be
+found in the <code>extdata</code> subdirectory of the
+<strong>MCSimMod</strong> package. Also, a full description of rules and
+syntax for MCSim model specification files can be found in Section 5 of
+the <a href="https://www.gnu.org/software/mcsim/mcsim.html">GNU MCSim
+User’s Manual</a>.</p>
+<p>The first element of the MCSim model specification file is a listing
+of the state variables in the ordinary differential equation (ODE)
+model. We use the text symbol <code>A</code> to represent the state
+variable <span class="math inline">\(A\)</span> in the exponential
+model.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a># STATE VARIABLES for the model (for which ODEs are provided).</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>States = {</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>    A,        # Amount of substance.</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>};</span></code></pre></div>
+<p>Note that the <code>#</code> character indicates the start of a
+comment. That is, any text following the <code>#</code> character on any
+line will be ignored when translating the model specification file into
+machine language. Note also that the state variables should be provided
+in a comma-delimited list that begins with <code>{</code> and ends with
+<code>};</code> (with a semicolon).</p>
+<p>The model specification file can also include a listing of the
+“output variables” for the model. These are variables for which values
+can be calculated as analytic functions of state variables, “input
+variables” (which will be described next), and/or parameters. For the
+exponential model, we will not include any output variables, so we will
+use a blank list. (This element of the model specification file could be
+omitted.)</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a># OUTPUT VARIABLES for the model (which can be obtained at any point in time</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a># as analytic functions of state variables, input variables, and parameters).</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>Outputs = {};</span></code></pre></div>
+<p>Another optional element of the model specification file is a listing
+of the “input variables” for the model. These variables are independent
+of other variables and can vary in time. For the exponential model, we
+will not include any input variables. (This element of the model
+specification file could be omitted.)</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a># INPUT VARIABLES for the model (which are independent of other variables, and</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a># which may vary in time).</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>Inputs = {};</span></code></pre></div>
+<p>The next element of the model specification file allows one to name
+the parameters and to provide default values for those parameters. (Note
+that the parameter values to be used for specific model simulations can
+be changed without editing the model specification file.) Recall that
+the parameters for the exponential model are <span class="math inline">\(A_0\)</span> and <span class="math inline">\(r\)</span>, for which we use the text symbols
+<code>A0</code> and <code>r</code>, respectively.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a># PARAMETERS for the model (which are independent of time).</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>A0 = 0;          # Initial amount.</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>r = 0;           # Exponential rate of change (time^-1).</span></code></pre></div>
+<p>The “Initialize” section is the next element of the model
+specification file. In this section, the values of any static parameters
+that need to be calculated (e.g., based on the values of other
+parameters) can be determined and initial values of the state variables
+can be provided. Note that this section begins with
+<code>Initialize {</code> and ends with <code>}</code> (with no
+semicolon).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a># MODEL INITIALIZATION section.</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>Initialize {</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    # Assign an initial value for each state variable.</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    A = A0;</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>}</span></code></pre></div>
+<p>Finally, we have the “Dynamics” section. In this section of the model
+specification file, the state equations (ODEs) for all state variables
+should be provided. This section begins with <code>Dynamics {</code> and
+ends with <code>}</code> (with no semicolon). For each state variable in
+the model, the state equation should be provided using <code>dt</code>
+followed by the text symbol for the state variable in parentheses, the
+<code>=</code> symbol, and then a mathematical expression that
+represents the time rate of change of the state variable.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a># DYNAMICS section.</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Dynamics {</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    # Time rate of change (ODE) for each state variable.</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    dt(A) = r * A;</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<div id="building-the-model" class="section level2">
+<h2>Building the Model</h2>
+<p>Next, we will use the <strong>MCSimMod</strong> package to define the
+ODE model and solve an initial value problem. Solving an initial value
+problem is synonymous with “performing a simulation” with the model.</p>
+<p>First, we load the <strong>MCSimMod</strong> package as follows.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(MCSimMod)</span></code></pre></div>
+<p>Using the following commands, we create an exponential model object
+(i.e., an instance of the <code>Model</code> class) using the model
+specification file <code>exponential.model</code> that is included in
+the <strong>MCSimMod</strong> package.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Get the full name of the package directory that contains the example MCSim</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co"># model specification file.</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>mod_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">&quot;MCSimMod&quot;</span>), <span class="st">&quot;extdata&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co"># Create a model object using the example MCSim model specification file</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co"># &quot;exponential.model&quot; included in the MCSimMod package.</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>exp_mod_name <span class="ot">&lt;-</span> <span class="fu">file.path</span>(mod_path, <span class="st">&quot;exponential&quot;</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>exp_mod <span class="ot">&lt;-</span> <span class="fu">createModel</span>(exp_mod_name)</span></code></pre></div>
+<p>Once the model object is created, we can “load” the model (so that
+it’s ready for use in a given R session) as follows. If necessary (e.g.,
+when the model has not previously been “built”), this step will create
+output files (with names ending in “.c”, “.o”, “_inits.R”, and “.dll” or
+“.so”) in a temporary directory. Some of these model files (the ones
+with names ending in “_inits.R” and “.dll” or “.so”) are used to perform
+simulations with the model.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Load the model.</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>exp_mod<span class="sc">$</span><span class="fu">loadModel</span>()</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; C compilation complete. Full details are available in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\compiler_output.txt.</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; Hash created and saved in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\exponential_model.md5.</span></span></code></pre></div>
+</div>
+<div id="solving-an-initial-value-problem-i.e.-performing-a-model-simulation" class="section level2">
+<h2>Solving an Initial Value Problem (i.e., Performing a Model
+Simulation)</h2>
+<p>Next, we can change the parameter values from their default values
+(which are given in the model specification file) to the values we wish
+to use for our simulation (i.e., <span class="math inline">\(A_0 =
+100\)</span> and <span class="math inline">\(r = -0.5\)</span>).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Change the values of the model parameters from their default values: set the</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># initial amount (A0) to 100 and the exponential rate (r) to -0.5.</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>exp_mod<span class="sc">$</span><span class="fu">updateParms</span>(<span class="fu">c</span>(<span class="at">A0 =</span> <span class="dv">100</span>, <span class="at">r =</span> <span class="sc">-</span><span class="fl">0.5</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co"># Update the initial value(s) of the state variable(s) based on the updated</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co"># parameter value(s).</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>exp_mod<span class="sc">$</span><span class="fu">updateY0</span>()</span></code></pre></div>
+<p>Note that executing the command
+<code>exp_mod$updateParms(c(A0=100, r=-0.5))</code> updated the
+parameter values (replacing the default values that were provided in the
+model specification file) and that executing the command
+<code>exp_mod$updateY0()</code> updated the initial value of the state
+variable <code>A</code> using the updated value of the parameter
+<code>A0</code>. (The class methods <code>updateParms()</code> and
+<code>updateY0()</code> implement any logic provided in the “Initialize”
+section of the model specification file.)</p>
+<p>Finally, we can perform a simulation that provides results for the
+desired output times (i.e., <span class="math inline">\(t = 0, 0.1, 0.2,
+\ldots, 20.0\)</span>) using the following commands.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Define output times for simulation.</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">20</span>, <span class="at">by =</span> <span class="fl">0.1</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co"># Run simulation.</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>out <span class="ot">&lt;-</span> exp_mod<span class="sc">$</span><span class="fu">runModel</span>(times)</span></code></pre></div>
+</div>
+<div id="examining-the-results" class="section level2">
+<h2>Examining the Results</h2>
+<p>The final command shown above,
+<code>out &lt;- exp_mod$runModel(times)</code>, performs a model
+simulation and stores the simulation results in a “matrix” data
+structure called <code>out</code>. There is one row for each output
+time, and one column for each state variable (and each output variable
+when such variables are included in the model). The first five rows of
+this data structure are shown below. Note that the independent variable,
+which is <span class="math inline">\(t\)</span> in the case of the
+exponential model, is always labeled “time” in the output data
+structure.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">A</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0</td>
+<td align="right">100.00000</td>
+</tr>
+<tr class="even">
+<td align="right">0.1</td>
+<td align="right">95.12284</td>
+</tr>
+<tr class="odd">
+<td align="right">0.2</td>
+<td align="right">90.48383</td>
+</tr>
+<tr class="even">
+<td align="right">0.3</td>
+<td align="right">86.07088</td>
+</tr>
+<tr class="odd">
+<td align="right">0.4</td>
+<td align="right">81.87316</td>
+</tr>
+</tbody>
+</table>
+<p>We can examine the parameter values and initial conditions that were
+used for this simulation with the following commands.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>exp_mod<span class="sc">$</span>parms</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt;    A0     r </span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; 100.0  -0.5</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>exp_mod<span class="sc">$</span>Y0</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt;   A </span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; 100</span></span></code></pre></div>
+<p>Finally, we can create a visual representation of the simulation
+results. For example, we can plot the amount vs. time using the
+following command.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Plot simulation results.</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="fu">plot</span>(out[, <span class="st">&quot;time&quot;</span>], out[, <span class="st">&quot;A&quot;</span>],</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">&quot;Time&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Amount&quot;</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Dustin Kapraun" />
+
+<meta name="date" content="2025-04-09" />
+
+<title>(4) A Predator-Prey Model</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">(4) A Predator-Prey Model</h1>
+<h4 class="author">Dustin Kapraun</h4>
+<h4 class="date">2025-04-09</h4>
+
+
+
+<div id="model-description" class="section level2">
+<h2>Model Description</h2>
+<p>Suppose there is a population of rabbits (prey) and a population of
+foxes (predators) that inhabit the same area. The sizes of these two
+populations can be modeled as a system of ordinary differential
+equations (ODEs). In particular, if <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> represent the numbers (in thousands) of
+rabbits and foxes, respectively, the rates of change of these numbers
+can be estimated as<br />
+<span class="math display">\[\begin{align}
+  \frac{\textrm{d}x}{\textrm{d}t} &amp;= \alpha x - \beta x y, \\
+  \frac{\textrm{d}y}{\textrm{d}t} &amp;= \gamma x y - \delta y, \\
+\end{align}\]</span> where <span class="math inline">\(\alpha\)</span>
+(day<span class="math inline">\(^{-1}\)</span>) is a parameter that
+determines the birth rate of rabbits, <span class="math inline">\(\beta\)</span> (day<span class="math inline">\(^{-1}\)</span> per 1000 foxes) is a parameter that
+determines the death rate of rabbits, <span class="math inline">\(\gamma\)</span> (day<span class="math inline">\(^{-1}\)</span> per 1000 rabbits) is a parameter
+that determines the birth rate of foxes, and <span class="math inline">\(\delta\)</span> (day<span class="math inline">\(^{-1}\)</span>) is a parameter that determines the
+death rate of foxes. In order to solve an initial value problem for the
+predator-prey model, one needs to provide the values of <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\delta\)</span>, as well as initial values for
+<span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
+</div>
+<div id="mcsim-model-specification" class="section level2">
+<h2>MCSim Model Specification</h2>
+<p>We used the <a href="https://www.gnu.org/software/mcsim/">GNU
+MCSim</a> model specification language to implement the predator-prey
+model. The complete MCSim model specification file for this model,
+<code>pred_prey.model</code>, can be found in the <code>extdata</code>
+subdirectory of the <strong>MCSimMod</strong> package.</p>
+<p>In the model specification file, we used the text symbols
+<code>x</code> and <code>y</code> to represent the state variables <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> and the text symbols
+<code>alpha</code>, <code>beta</code>, <code>gamma</code>, and
+<code>delta</code> to represent the parameters <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, <span class="math inline">\(\gamma\)</span>, and <span class="math inline">\(\delta\)</span>, respectively.</p>
+</div>
+<div id="building-the-model" class="section level2">
+<h2>Building the Model</h2>
+<p>First, we load the <strong>MCSimMod</strong> package as follows.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(MCSimMod)</span></code></pre></div>
+<p>Using the following commands, we create a model object (i.e., an
+instance of the <code>Model</code> class) using the model specification
+file <code>pred_prey.model</code> that is included in the
+<strong>MCSimMod</strong> package.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Get the full name of the package directory that contains the example MCSim</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># model specification file.</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>mod_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">&quot;MCSimMod&quot;</span>), <span class="st">&quot;extdata&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Create a model object using the example MCSim model specification file</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># &quot;pred_prey.model&quot; included in the MCSimMod package.</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>pp_mod_name <span class="ot">&lt;-</span> <span class="fu">file.path</span>(mod_path, <span class="st">&quot;pred_prey&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>pp_mod <span class="ot">&lt;-</span> <span class="fu">createModel</span>(pp_mod_name)</span></code></pre></div>
+<p>Once the model object is created, we can “load” the model (so that
+it’s ready for use in a given R session) as follows.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Load the model.</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>pp_mod<span class="sc">$</span><span class="fu">loadModel</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; C compilation complete. Full details are available in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\compiler_output.txt.</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Hash created and saved in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\pred_prey_model.md5.</span></span></code></pre></div>
+</div>
+<div id="predicting-the-numbers-of-rabbits-and-foxes" class="section level2">
+<h2>Predicting the Numbers of Rabbits and Foxes</h2>
+<p>Suppose we want to predict the numbers of rabbits and foxes over a
+period of 50 days assuming that <span class="math inline">\(\alpha =
+0.67\)</span>, <span class="math inline">\(\beta = 1.33\)</span>, <span class="math inline">\(\gamma = 1.00\)</span>, <span class="math inline">\(\delta = 1.00\)</span>, and the initial numbers of
+rabbits and foxes are 1000 and 750, respectively. These are the default
+values of the model parameters and initial conditions that are provided
+in the model specification file, and we can verify this with the
+following commands.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>pp_mod<span class="sc">$</span>parms</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; alpha  beta gamma delta </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;  0.67  1.33  1.00  1.00</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>pp_mod<span class="sc">$</span>Y0</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;    x    y </span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 1.00 0.75</span></span></code></pre></div>
+<p>We can perform a simulation that provides results for the desired
+output times (i.e., <span class="math inline">\(t = 0.0, 0.1, 0.2,
+\ldots, 50.0\)</span>) using the following commands.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Define output times for simulation.</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">50</span>, <span class="at">by =</span> <span class="fl">0.1</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># Run simulation.</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>out <span class="ot">&lt;-</span> pp_mod<span class="sc">$</span><span class="fu">runModel</span>(times)</span></code></pre></div>
+</div>
+<div id="examining-the-results" class="section level2">
+<h2>Examining the Results</h2>
+<p>The final command shown above,
+<code>out &lt;- pp_mod$runModel(times)</code>, performs a model
+simulation and stores the simulation results in a “matrix” data
+structure called <code>out</code>. There is one row for each output
+time, and one column for each state variable. The first five rows of
+this data structure are shown below. Note that the independent variable,
+which is <span class="math inline">\(t\)</span> in the case of the
+predator-prey model, is always labeled “time” in the output data
+structure.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">x</th>
+<th align="right">y</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0</td>
+<td align="right">1.0000000</td>
+<td align="right">0.7500000</td>
+</tr>
+<tr class="even">
+<td align="right">0.1</td>
+<td align="right">0.9678346</td>
+<td align="right">0.7487880</td>
+</tr>
+<tr class="odd">
+<td align="right">0.2</td>
+<td align="right">0.9369984</td>
+<td align="right">0.7452243</td>
+</tr>
+<tr class="even">
+<td align="right">0.3</td>
+<td align="right">0.9077112</td>
+<td align="right">0.7394507</td>
+</tr>
+<tr class="odd">
+<td align="right">0.4</td>
+<td align="right">0.8801364</td>
+<td align="right">0.7316377</td>
+</tr>
+</tbody>
+</table>
+<p>We can create visual representations of the simulation results. For
+example, we can plot the numbers of rabbits and foxes vs. time using the
+following commands.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Plot simulation results (numbers vs. time).</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">plot</span>(out[, <span class="st">&quot;time&quot;</span>], out[, <span class="st">&quot;x&quot;</span>],</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">&quot;Time (d)&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Number (1000s)&quot;</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">lines</span>(out[, <span class="st">&quot;time&quot;</span>], out[, <span class="st">&quot;y&quot;</span>], <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Rabbits&quot;</span>, <span class="st">&quot;Foxes&quot;</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>Alternatively, we can plot the results in phase-space as follows.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Plot simulation results (number of foxes vs. number of rabbits).</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">plot</span>(out[, <span class="st">&quot;x&quot;</span>], out[, <span class="st">&quot;y&quot;</span>],</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">&quot;Number of Rabbits (1000s)&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Number of Foxes (1000s)&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+</div>
+<div id="removing-output-files" class="section level2">
+<h2>Removing Output Files</h2>
+<p>We can remove output files that were created when building the model
+(i.e., files with names ending in “.c”, “.o”, “_inits.R”, and “.dll” or
+“.so”) by calling the <code>cleanup()</code> method.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Remove output files that were created when building the model.</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>pp_mod<span class="sc">$</span><span class="fu">cleanup</span>()</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

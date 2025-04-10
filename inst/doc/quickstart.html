@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Dustin Kapraun" />
+
+<meta name="date" content="2025-04-09" />
+
+<title>(1) Introduction to MCSimMod</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">(1) Introduction to MCSimMod</h1>
+<h4 class="author">Dustin Kapraun</h4>
+<h4 class="date">2025-04-09</h4>
+
+
+
+<p>The <strong>MCSimMod</strong> package can be used to define ordinary
+differential equation (ODE) models and solve initial value problems for
+such models. Models can be specified using text that that is supplied
+either as a string or in a file. The text is used to create a model
+object (i.e., an instance of the <strong>MCSimMod</strong>
+<code>Model</code> class). The R commands that follow create a model
+object corresponding to a simple ODE model given by <span class="math display">\[\begin{align}
+  \frac{\textrm{d}}{\textrm{d}t}y(t) &amp;= m, \\
+  y(0) &amp;= y_0,
+\end{align}\]</span> using a string that both provides the ODE for the
+state variable, <span class="math inline">\(y\)</span>, and sets the
+(default) values of the model parameters to <span class="math inline">\(y_0 = 2\)</span> and <span class="math inline">\(m
+= 0.5\)</span>. (More details about the structure of the model
+specification text are provided in a separate tutorial.)</p>
+<p>First, we load the <strong>MCSimMod</strong> package as follows.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(MCSimMod)</span></code></pre></div>
+<p>Then, we define the model string as follows.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>mod_string <span class="ot">&lt;-</span> <span class="st">&quot;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="st">States = {y};</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="st">y0 = 2;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="st">m = 0.5;</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="st">Initialize {</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="st">    y = y0;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="st">Dynamics {</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="st">    dt(y) = m;</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="st">}</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="st">End.</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="st">&quot;</span></span></code></pre></div>
+<p>Next, we create a <code>Model</code> object called <code>model</code>
+using the following command.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">createModel</span>(<span class="at">mString =</span> mod_string)</span></code></pre></div>
+<p>Once the model object is created, we can “load” the model (so that
+it’s ready for use in a given R session) and perform a simulation that
+provides results for the desired output times (<span class="math inline">\(t = 0, 0.1, 0.2, \ldots, 20.0\)</span>) using the
+following commands.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>model<span class="sc">$</span><span class="fu">loadModel</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; C compilation complete. Full details are available in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\compiler_output.txt.</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; Hash created and saved in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\mcsimmod_369c7a4573eb_model.md5.</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">20</span>, <span class="at">by =</span> <span class="fl">0.1</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>out <span class="ot">&lt;-</span> model<span class="sc">$</span><span class="fu">runModel</span>(times)</span></code></pre></div>
+<p>The final command shown above performs a model simulation and stores
+the simulation results in a “matrix” data structure called
+<code>out</code>. The first five rows of this data structure are shown
+below. Note that the independent variable, which is <span class="math inline">\(t\)</span> in the case of the linear model we’ve
+created here, is always labeled “time” in the output data structure.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">y</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0</td>
+<td align="right">2.00</td>
+</tr>
+<tr class="even">
+<td align="right">0.1</td>
+<td align="right">2.05</td>
+</tr>
+<tr class="odd">
+<td align="right">0.2</td>
+<td align="right">2.10</td>
+</tr>
+<tr class="even">
+<td align="right">0.3</td>
+<td align="right">2.15</td>
+</tr>
+<tr class="odd">
+<td align="right">0.4</td>
+<td align="right">2.20</td>
+</tr>
+</tbody>
+</table>
+<p>We can examine the parameter values and initial conditions that were
+used for this simulation with the following commands.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>model<span class="sc">$</span>parms</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;  y0   m </span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; 2.0 0.5</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>model<span class="sc">$</span>Y0</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; y </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<p>Finally, we can create a visual representation of the simulation
+results. For example, we can plot the value of <span class="math inline">\(y\)</span> vs. time (<span class="math inline">\(t\)</span>) using the following command.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Plot simulation results.</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">plot</span>(out[, <span class="st">&quot;time&quot;</span>], out[, <span class="st">&quot;y&quot;</span>],</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">xlab =</span> <span class="st">&quot;Time&quot;</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">&quot;y&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

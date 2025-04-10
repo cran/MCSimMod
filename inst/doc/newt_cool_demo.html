@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Dustin Kapraun" />
+
+<meta name="date" content="2025-04-09" />
+
+<title>(3) A Model for Newton’s Law of Cooling</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">(3) A Model for Newton’s Law of
+Cooling</h1>
+<h4 class="author">Dustin Kapraun</h4>
+<h4 class="date">2025-04-09</h4>
+
+
+
+<div id="model-description" class="section level2">
+<h2>Model Description</h2>
+<p>According to Newton’s Law of Cooling, a the rate of change of the
+temperature of a body is proportional to the difference in the ambient
+temperature and the current temperature of the body. So, if <span class="math inline">\(T(t)\)</span> is the temperature of the body at
+time <span class="math inline">\(t\)</span>, <span class="math inline">\(T_\textrm{amb}\)</span> is the ambient
+temperature, and <span class="math inline">\(r&gt;0\)</span> is a
+constant of proportionality (with units of one over time), then <span class="math display">\[\begin{equation}
+  \frac{\textrm{d}}{\textrm{d}t}T(t) = -r \left( T(t) - T_\textrm{amb}
+\right).
+\end{equation}\]</span></p>
+<p>In order to solve an initial value problem for the Newton’s Law of
+Cooling model, one needs to provide the values of three parameters: the
+rate constant, <span class="math inline">\(r\)</span>; the ambient
+temperature, <span class="math inline">\(T_\textrm{amb}\)</span>; and
+the initial temperature of the body, <span class="math inline">\(T_0\)</span>, such that <span class="math inline">\(T(0) = T_0\)</span>.</p>
+</div>
+<div id="mcsim-model-specification" class="section level2">
+<h2>MCSim Model Specification</h2>
+<p>We used the <a href="https://www.gnu.org/software/mcsim/">GNU
+MCSim</a> model specification language to implement the Newton’s Law of
+Cooling model. The complete MCSim model specification file for this
+model, <code>newt_cool.model</code>, can be found in the
+<code>extdata</code> subdirectory of the <strong>MCSimMod</strong>
+package.</p>
+<p>In the model specification file, we used the text symbol
+<code>T</code> to represent the state variable <span class="math inline">\(T\)</span>, and the text symbols <code>r</code>,
+<code>Tamb</code>, and <code>T0</code> to represent the parameters <span class="math inline">\(r\)</span>, <span class="math inline">\(T_\textrm{amb}\)</span>, and <span class="math inline">\(T_0\)</span>, respectively.</p>
+</div>
+<div id="building-the-model" class="section level2">
+<h2>Building the Model</h2>
+<p>First, we load the <strong>MCSimMod</strong> package as follows.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(MCSimMod)</span></code></pre></div>
+<p>Using the following commands, we create a model object (i.e., an
+instance of the <code>Model</code> class) using the model specification
+file <code>newt_cool.model</code> that is included in the
+<strong>MCSimMod</strong> package.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Get the full name of the package directory that contains the example MCSim</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># model specification file.</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>mod_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">system.file</span>(<span class="at">package =</span> <span class="st">&quot;MCSimMod&quot;</span>), <span class="st">&quot;extdata&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># Create a model object using the example MCSim model specification file</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># &quot;newt_cool.model&quot; included in the MCSimMod package.</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>newt_mod_name <span class="ot">&lt;-</span> <span class="fu">file.path</span>(mod_path, <span class="st">&quot;newt_cool&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>newt_mod <span class="ot">&lt;-</span> <span class="fu">createModel</span>(newt_mod_name)</span></code></pre></div>
+<p>Once the model object is created, we can “load” the model (so that
+it’s ready for use in a given R session) as follows.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Load the model.</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>newt_mod<span class="sc">$</span><span class="fu">loadModel</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; C compilation complete. Full details are available in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\compiler_output.txt.</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; Hash created and saved in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\newt_cool_model.md5.</span></span></code></pre></div>
+</div>
+<div id="predicting-the-temperature-of-a-cup-of-tea" class="section level2">
+<h2>Predicting the Temperature of a Cup of Tea</h2>
+<p>Suppose we want to predict the temperature of a cup of tea that has
+an initial temperature of 95<span class="math inline">\(^\circ\)</span>C
+when the ambient air temperature is 22<span class="math inline">\(^\circ\)</span>C and the rate constant parameter
+has a value of 0.7 (i.e., <span class="math inline">\(T_0 = 95\)</span>,
+<span class="math inline">\(T_\textrm{amb} = 22\)</span>, and <span class="math inline">\(r = 0.7\)</span>). We can change the parameter
+values from their default values (which are given in the model
+specification file) to the values we wish to use for simulation of this
+scenario.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Change the values of the model parameters from their default values.</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>newt_mod<span class="sc">$</span><span class="fu">updateParms</span>(<span class="fu">c</span>(<span class="at">T0 =</span> <span class="dv">95</span>, <span class="at">Tamb =</span> <span class="dv">22</span>, <span class="at">r =</span> <span class="fl">0.7</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co"># Update the initial value(s) of the state variable(s) based on the updated</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># parameter value(s).</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>newt_mod<span class="sc">$</span><span class="fu">updateY0</span>()</span></code></pre></div>
+<p>Note that executing the command
+<code>newt_mod$updateParms(c(T0=95, Tamb=22, r=0.7))</code> updated the
+parameter values (replacing the default values that were provided in the
+model specification file) and that executing the command
+<code>newt_mod$updateY0()</code> updated the initial value of the state
+variable <code>T</code> using the updated value of the parameter
+<code>T0</code>.</p>
+<p>Finally, we can perform a simulation that provides results for the
+desired output times (i.e., <span class="math inline">\(t = 0, 0.1, 0.2,
+\ldots, 5.0\)</span>) using the following commands.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Define output times for simulation.</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">5</span>, <span class="at">by =</span> <span class="fl">0.1</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># Run simulation.</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>out <span class="ot">&lt;-</span> newt_mod<span class="sc">$</span><span class="fu">runModel</span>(times)</span></code></pre></div>
+</div>
+<div id="examining-the-results" class="section level2">
+<h2>Examining the Results</h2>
+<p>The final command shown above,
+<code>out &lt;- newt_mod$runModel(times)</code>, performs a model
+simulation and stores the simulation results in a “matrix” data
+structure called <code>out</code>. There is one row for each output
+time, and one column for each state variable (and each output variable
+when such variables are included in the model). The first five rows of
+this data structure are shown below. Note that the independent variable,
+which is <span class="math inline">\(t\)</span> in the case of the
+Newton’s Law of Cooling model, is always labeled “time” in the output
+data structure.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="right">T</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0</td>
+<td align="right">95.00000</td>
+</tr>
+<tr class="even">
+<td align="right">0.1</td>
+<td align="right">90.06469</td>
+</tr>
+<tr class="odd">
+<td align="right">0.2</td>
+<td align="right">85.46322</td>
+</tr>
+<tr class="even">
+<td align="right">0.3</td>
+<td align="right">81.17273</td>
+</tr>
+<tr class="odd">
+<td align="right">0.4</td>
+<td align="right">77.17230</td>
+</tr>
+</tbody>
+</table>
+<p>We can examine the parameter values and initial conditions that were
+used for this simulation using the following commands.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>newt_mod<span class="sc">$</span>parms</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;   T0    r Tamb </span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; 95.0  0.7 22.0</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>newt_mod<span class="sc">$</span>Y0</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;  T </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 95</span></span></code></pre></div>
+<p>Finally, we can create a visual representation of the simulation
+results. For example, we can plot the temperature vs. time using the
+following commands.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Plot simulation results.</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">plot</span>(out[, <span class="st">&quot;time&quot;</span>], out[, <span class="st">&quot;T&quot;</span>],</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;l&quot;</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">&quot;Time&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Temperature (C)&quot;</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> newt_mod<span class="sc">$</span>parms[[<span class="st">&quot;Tamb&quot;</span>]], <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Tea&quot;</span>, <span class="st">&quot;Ambient Air&quot;</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
