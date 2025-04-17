@@ -12,7 +12,7 @@
 
 <meta name="author" content="Dustin Kapraun" />
 
-<meta name="date" content="2025-04-09" />
+<meta name="date" content="2025-04-15" />
 
 <title>(1) Introduction to MCSimMod</title>
 
@@ -340,7 +340,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">(1) Introduction to MCSimMod</h1>
 <h4 class="author">Dustin Kapraun</h4>
-<h4 class="date">2025-04-09</h4>
+<h4 class="date">2025-04-15</h4>
 
 
 
@@ -381,8 +381,8 @@ it’s ready for use in a given R session) and perform a simulation that
 provides results for the desired output times (<span class="math inline">\(t = 0, 0.1, 0.2, \ldots, 20.0\)</span>) using the
 following commands.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>model<span class="sc">$</span><span class="fu">loadModel</span>()</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; C compilation complete. Full details are available in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\compiler_output.txt.</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; Hash created and saved in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp4YuNTn\mcsimmod_369c7a4573eb_model.md5.</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; C compilation complete. Full details are available in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp8uzzoi\compiler_output.txt.</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; Hash created and saved in the file C:\Users\dkapraun\AppData\Local\Temp\Rtmp8uzzoi\mcsimmod_d9077f37d4b_model.md5.</span></span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>times <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">20</span>, <span class="at">by =</span> <span class="fl">0.1</span>)</span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>out <span class="ot">&lt;-</span> model<span class="sc">$</span><span class="fu">runModel</span>(times)</span></code></pre></div>
 <p>The final command shown above performs a model simulation and stores
